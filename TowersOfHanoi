@@ -1,0 +1,132 @@
+import java.util.*;
+
+public class TowerOfHanoi {
+    //DATA STRUCTURE//
+    class Stack{
+        int capacity;
+        int top;
+        int array[];
+    }
+
+    //CRETING STACK OF GIVEN CAPACITY//
+    Stack createStack(int capacity){
+        Stack stack = new Stack();
+        stack.capacity = capacity;
+        stack.top = -1;
+        stack.array = new int[capacity];
+        return stack;
+    }
+
+    //WHEN TOP = INDEX, STACK IS FULL//
+    boolean isFull(Stack stack){
+        return(stack.top == stack.capacity - 1);
+    }
+
+    //WHEN TOP = -1, STACK IS EMPTY//
+    boolean isEmpty(Stack stack){
+        return (stack.top == -1);
+    }
+
+    //STACK INCREASES BY 1//
+    void push(Stack stack, int item){
+        if(isFull(stack)){return;}
+        stack.array[++stack.top] = item;
+    }
+
+    //STACK DECREASES BY 1//
+    int pop(Stack stack){
+        if(isEmpty(stack)){return Integer.MIN_VALUE;}
+        return stack.array[stack.top--];
+    }
+
+    //MOVING DISKS BETWEEN TWO SEPERATE POLES//
+    void moveDisksBetweenTwoPoles(Stack src, Stack dest, char a, char b){
+        int pole1TopDisk = pop(src);
+        int pole2TopDisk = pop(dest);
+
+        //WHEN POLE 1 IS EMPTY//
+        if(pole1TopDisk == Integer.MIN_VALUE){
+            push(src, pole2TopDisk);
+            moveDisk(b, a, pole2TopDisk);
+        }
+
+        //WHEN POLE 2 IS EMPTY//
+        else if(pole2TopDisk == Integer.MIN_VALUE){
+            push(dest, pole1TopDisk);
+            moveDisk(a, b, pole1TopDisk);
+        }
+
+        //WHEN TOP DISK POLE 1>POLE 2//
+        else if(pole1TopDisk>pole2TopDisk){
+            push(src, pole1TopDisk);
+            push(src, pole2TopDisk);
+            moveDisk(b, a, pole2TopDisk);
+        }
+
+        //WHEN TOP DISK POLE 1<POLE 2//
+        else{
+            push(dest, pole2TopDisk);
+            push(dest, pole1TopDisk);
+            moveDisk(a, b, pole1TopDisk);
+        }
+    }
+    static int count = 1;
+    //MOVEMENT OF DISKS
+    void moveDisk(char fromPeg, char toPeg, int disk){
+        System.out.println("Move the disk "+disk+" from "+fromPeg + " to "+toPeg + " | MOVES: " + count++);
+        System.out.println("");
+    }
+
+    //IMPLEMENTING TOWERS OF HANOI//
+    void towersOfHanoi(int num_of_disks, Stack src, Stack aux, Stack dest){
+        int i, total_num_of_moves;
+        char a = 'A', c = 'B', b = 'C';
+
+        //INTERCHANGE DESTINATION AND AUXILLARY POLE IF DISK NUMBERS ARE EVEN//
+        if(num_of_disks % 2 == 0){
+            char temp = b;
+            b = c;
+            c = temp;
+        }
+        total_num_of_moves = (int) (Math.pow(2, num_of_disks)-1);
+
+        //LARGER DISKS PUSHED FIRST//
+        for(i = num_of_disks; i>=1; i--){
+            push(src, i);
+        }
+
+        for(i=1; i<=total_num_of_moves; i++){
+            if(i % 3 == 1)
+                moveDisksBetweenTwoPoles(src, dest, a, b);
+
+            else if(i % 3 == 2)
+                moveDisksBetweenTwoPoles(src, aux, a, c);
+
+            else if(i % 3 == 0)
+                moveDisksBetweenTwoPoles(aux, dest, c, b);
+        }
+    }
+
+    //TESTING//
+    public static void main(String[] args) throws InterruptedException {
+        int num_of_disks = 15;
+
+        TowerOfHanoi test = new TowerOfHanoi();
+        Stack src, dest, aux;
+
+        src = test.createStack(num_of_disks);
+        dest = test.createStack(num_of_disks);
+        aux = test.createStack(num_of_disks);
+
+
+
+        long startTime = System.currentTimeMillis();
+        test.towersOfHanoi(num_of_disks, src, aux, dest);
+        long endTime = System.currentTimeMillis();
+
+        // CALCULATE TIME DIFFERENCE
+        double timeDiff = endTime - startTime;
+        System.out.println("Elapsed time in seconds: " + timeDiff/1000);
+
+    }
+}
